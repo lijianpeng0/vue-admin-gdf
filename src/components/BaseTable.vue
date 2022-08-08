@@ -12,8 +12,8 @@
       </el-table-column>
     </el-table>
     <el-pagination @size-change="handleSizeChange" @current-change="handleCurrentChange"
-      :current-page="queryInfo.pageNo" :page-sizes="[10, 20, 30, 40, 50]" :page-size="queryInfo.pageSize"
-      layout="total, sizes, prev, pager, next, jumper" :total="tableData.length">
+      :current-page="queryInfo.page" :page-sizes="[10, 20, 30, 40, 50]" :page-size="queryInfo.rows"
+      layout="total, sizes, prev, pager, next, jumper" :total="total">
     </el-pagination>
   </div>
 </template>
@@ -27,14 +27,17 @@ export default {
     tableData: {
       type: Array,
       default: () => []
+    },
+    total: {
+      type: [String, Number]
     }
   },
   data () {
     return {
       timestamp: +new Date(),
       queryInfo: {
-        pageNo: 1,
-        pageSize: 10
+        page: 1,
+        rows: 10
       },
       height: 500
     }
@@ -44,11 +47,11 @@ export default {
   },
   methods: {
     handleSizeChange (size) {
-      this.queryInfo.pageSize = size
+      this.queryInfo.rows = size
       this.loadData()
     },
     handleCurrentChange (page) {
-      this.queryInfo.pageNo = page
+      this.queryInfo.page = page
       this.loadData()
     },
     loadData () {

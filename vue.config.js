@@ -1,8 +1,14 @@
 module.exports = {
-  // 默认打开浏览器
-  // devServer: {
-  //   open: true
-  // }
+  devServer: {
+    // 代理跨域的配置
+    proxy: {
+      '/service': {
+        target: 'http://47.108.191.22', // 跨域请求的地址
+        changeOrigin: true // 只有这个值为true的情况下 才表示开启跨域
+      }
+    }
+    // before: require('./mock/mock-server.js')
+  },
   chainWebpack: config => {
     // 改入口文件
     // 生产阶段入口文件

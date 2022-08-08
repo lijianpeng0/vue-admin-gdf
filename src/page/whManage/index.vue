@@ -1,12 +1,12 @@
 <template>
   <div class="page-main">
-    <MyTitle title="入库管理" />
+    <MyTitle title="仓库管理" />
     <div class="page-content">
       <SearchForm :form-item="formItem" @addHandler="addHandler" @onSearch="onSearch"
         @updataFormFata="updataFormFata" />
-      <BaseTable :columns="columns()" :table-data="tableData" @loadData="onSearch" />
+      <BaseTable :columns="columns()" :table-data="tableData" @loadData="onSearch" :total="total" />
     </div>
-    <add-dialog :form-data="formData" :add-dialog-visible.sync="addDialogVisible" :oper-flag="operFlag" />
+    <add-dialog :form-data="formData" :add-dialog-visible.sync="addDialogVisible" :oper-flag="operFlag" @addSuccess="onSearch" />
     <view-dialog :form-data="formData" :view-dialog-visible.sync="viewDialogVisible" />
   </div>
 </template>
@@ -16,43 +16,36 @@ import SearchForm from '@/components/SearchForm'
 import BaseTable from '@/components/BaseTable'
 import AddDialog from './AddDialog'
 import ViewDialog from './ViewDialog'
+import { getWarehouse, deleteWarehouse } from '@/api/service'
+
 export default {
   name: 'WhManage',
   components: { MyTitle, SearchForm, BaseTable, AddDialog, ViewDialog },
   data () {
     return {
       searchForm: {
-        keyWord: '',
-        date: ''
+        warehouseName: ''
       },
       formItem: [
         {
           type: 'TEXT',
-          key: 'keyWord',
-          label: '搜索内容'
-        },
-        {
-          type: 'DATE',
-          key: 'date',
-          label: '时间间隔'
+          key: 'warehouseName',
+          label: '仓库名称'
         }
       ],
       tableData: [
-        { name: '章三', text: '新增', time: '1', address: '2' },
-        { name: '里斯', text: '删除', time: '1', address: '2' },
-        { name: '网舞', text: '跳转', time: '1', address: '2' },
-        { name: '章三', text: '新增', time: '1', address: '2' },
-        { name: '里斯', text: '删除', time: '1', address: '2' },
-        { name: '网舞', text: '跳转', time: '1', address: '2' }
+        // { name: '章三', text: '新增', time: '1', address: '2' },
+        // { name: '里斯', text: '删除', time: '1', address: '2' },
+        // { name: '网舞', text: '跳转', time: '1', address: '2' },
+        // { name: '章三', text: '新增', time: '1', address: '2' },
+        // { name: '里斯', text: '删除', time: '1', address: '2' },
+        // { name: '网舞', text: '跳转', time: '1', address: '2' }
       ],
-      queryInfo: {
-        pageNo: 1,
-        pageSize: 10
-      },
+      total: 0,
       formData: {
-        whNo: '1',
-        whName: '2',
-        whAddress: '3'
+        warehouseCode: '',
+        warehouseName: '',
+        warehouseAddress: ''
       },
       addDialogVisible: false,
       operFlag: 'add',
@@ -66,9 +59,9 @@ export default {
   methods: {
     columns () {
       return [
-        { label: '姓名', key: 'name' },
-        { label: '入库时间', key: 'time' },
-        { label: '地址', key: 'address' },
+        { label: '仓库名称', key: 'warehouseName' },
+        { label: '仓库编码', key: 'warehouseCode' },
+        { label: '仓库地址', key: 'warehouseAddress' },
         {
           label: '操作',
           key: 'operate',
@@ -81,9 +74,8 @@ export default {
 
             },
             {
-              title: '详情',
-              handler: this.viewHandler
-
+              title: '删除',
+              handler: this.deleteHandler
             }
           ]
         }
@@ -93,11 +85,20 @@ export default {
       this.operFlag = 'add'
       this.addDialogVisible = true
     },
-    onSearch (queryInfo) {
-      if (queryInfo) {
-        this.queryInfo = queryInfo
+    async onSearch (queryInfo) {
+      const params = queryInfo || {
+        page: 1,
+        rows: 10
       }
       // TODO 调用查询接口
+      const { data } = await getWarehouse({ ...params, ...this.searchForm })
+      if (!data.success) {
+        this.$message.error(data.message)
+        return
+      }
+      this.total = data.total
+      this.tableData = data.rows
+      this.$message.success(data.message)
     },
     updataFormFata (data) {
       this.searchForm = { ...data }
@@ -105,11 +106,24 @@ export default {
     editHandler (idx, row) {
       console.log(idx, row)
       this.operFlag = 'edit'
+      this.formData = row
       this.addDialogVisible = true
     },
-    viewHandler (idx, row) {
+    deleteHandler (idx, row) {
       console.log(idx, row)
-      this.viewDialogVisible = true
+      this.$confirm('确认删除改仓库吗？', '删除确认', {
+        confirmButtonText: '删除',
+        cancelButtonText: '取消'
+      })
+        .then(async () => {
+          const { data } = await deleteWarehouse({ id: row.id })
+          if (!data.success) {
+            this.$message.error(data.message)
+            return
+          }
+          this.$message.success(data.message)
+          this.onSearch()
+        })
     }
   }
 }

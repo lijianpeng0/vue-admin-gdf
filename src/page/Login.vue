@@ -10,10 +10,10 @@
           </el-form-item>
           <el-form-item prop="password">
             <el-input v-model="loginForm.password" prefix-icon="iconfont icon-3702mima" type="password"
-              placeholder="请输入密码"></el-input>
+              placeholder="请输入密码" @keyup.enter.native="login"></el-input>
           </el-form-item>
-          <el-form-item prop="orgNo">
-            <el-input v-model="loginForm.orgNo" prefix-icon="iconfont icon-3702mima" placeholder="请输入公司机构号"></el-input>
+          <el-form-item prop="companyCode">
+            <el-input v-model="loginForm.companyCode" prefix-icon="iconfont icon-3702mima" placeholder="请输入公司机构号"></el-input>
           </el-form-item>
         </el-form>
         <div class="btn_item">
@@ -25,6 +25,8 @@
   </div>
 </template>
 <script>
+import { login } from '@/api/service'
+import md5 from 'js-md5'
 export default {
   name: 'Login',
   data () {
@@ -32,7 +34,7 @@ export default {
       loginForm: {
         username: '',
         password: '',
-        orgNo: ''
+        companyCode: ''
       },
       loginFormRules: {
         username: [
@@ -58,12 +60,13 @@ export default {
       // 表单预校验
       this.$refs.loginFormRef.validate(async valid => {
         if (!valid) return this.$message.warning('请输入用户信息!')
-
-        const { data: res } = await this.$http.post('login', this.loginForm)
-        console.log(res)
-        if (res.meta.status !== 200) return this.$message.error(res.meta.msg)
-        this.$message.success(res.meta.msg)
-        window.sessionStorage.setItem('token', res.data.token)
+        const params = {
+          ...this.loginForm,
+          password: md5(this.loginForm.password)
+        }
+        const { data } = await login(params)
+        console.log(data)
+        if (data.success !== true) return this.$message.error(data.message || '登录失败！')
         this.$router.push('/home')
       })
     }

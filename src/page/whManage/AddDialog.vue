@@ -2,13 +2,14 @@
   <el-dialog :title="titleInfo" :visible.sync="dialogVisible" width="30%">
     <DynamicForm ref="dynamicFormRef" :form-data="form" :form-item="formItem()" :rules="rules" />
     <span slot="footer" class="dialog-footer">
-      <el-button @click="dialogVisible = false">取 消</el-button>
-      <el-button type="primary" @click="dialogVisible = false">确 定</el-button>
+      <el-button @click="cancelHandler">取 消</el-button>
+      <el-button type="primary" @click="confirmHandler">确 定</el-button>
     </span>
   </el-dialog>
 </template>
 <script>
 import DynamicForm from '@/components/DynamicForm.vue'
+import { addWarehouse, editWarehouse } from '@/api/service'
 
 export default {
   name: 'AddDialog',
@@ -30,9 +31,9 @@ export default {
   data () {
     return {
       form: {
-        whNo: '',
-        whName: '',
-        whAddress: ''
+        warehouseCode: '',
+        warehouseName: '',
+        warehouseAddress: ''
       }
     }
   },
@@ -70,9 +71,9 @@ export default {
   },
   created () {
     this.rules = {
-      whNo: [{ required: true, message: '请输入仓库编号', trigger: 'blur' }],
-      whName: [{ required: true, message: '请输入仓库名称', trigger: 'blur' }],
-      whAddress: [{ required: true, message: '请输入仓库地址', trigger: 'blur' }]
+      warehouseCode: [{ required: true, message: '请输入仓库编号', trigger: 'blur' }],
+      warehouseName: [{ required: true, message: '请输入仓库名称', trigger: 'blur' }],
+      warehouseAddress: [{ required: true, message: '请输入仓库地址', trigger: 'blur' }]
     }
   },
   methods: {
@@ -81,21 +82,49 @@ export default {
         {
           type: 'TEXT',
           label: '仓库编号',
-          key: 'whNo'
+          key: 'warehouseCode',
+          disabled: this.operFlag !== 'add'
         },
         {
           type: 'TEXT',
           label: '仓库名称',
-          key: 'whName'
+          key: 'warehouseName'
         },
         {
           type: 'TEXTAREA',
           label: '仓库地址',
-          key: 'whAddress'
+          key: 'warehouseAddress'
         }
       ]
     },
-    handleClose () { }
+    cancelHandler() {
+      this.dialogVisible = false
+    },
+    confirmHandler  () {
+      this.$refs.dynamicFormRef.$refs.formRef.validate(valid => {
+        if (!valid) return
+        if (this.operFlag === 'add') {
+          this.apiHandler(addWarehouse, this.form)
+          return
+        }
+        const params = {
+          id: this.form.id,
+          warehouseName: this.form.warehouseName,
+          warehouseAddress: this.form.warehouseAddress
+        }
+        this.apiHandler(editWarehouse, params)
+      })
+    },
+    async apiHandler(handler, params) {
+      const { data } = await handler(params)
+      if (!data.success) {
+        this.$message.error(data.message)
+        return
+      }
+      this.$message.success(data.message)
+      this.cancelHandler()
+      this.$emit('addSuccess')
+    }
   }
 }
 </script>

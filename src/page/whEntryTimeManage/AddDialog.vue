@@ -2,13 +2,14 @@
   <el-dialog :title="titleInfo" :visible.sync="dialogVisible" width="30%">
     <DynamicForm ref="dynamicFormRef" :form-data="form" :form-item="formItem()" :rules="rules" label-width="120px" />
     <span slot="footer" class="dialog-footer">
-      <el-button @click="dialogVisible = false">取 消</el-button>
-      <el-button type="primary" @click="dialogVisible = false">确 定</el-button>
+      <el-button @click="cancelHandler">取 消</el-button>
+      <el-button type="primary" @click="confirmHandler">确 定</el-button>
     </span>
   </el-dialog>
 </template>
 <script>
 import DynamicForm from '@/components/DynamicForm.vue'
+import { addStockoutOrderTime, getWarehouse } from '@/api/service'
 
 export default {
   name: 'AddDialog',
@@ -30,16 +31,17 @@ export default {
   data () {
     return {
       form: {
-        whNo: '',
-        theme: '',
-        scanContent: '',
-        isGetBack: '',
-        qualityRequirements: '',
-        singleScan: '',
-        physicalScanner: '',
-        importance: '',
-        isRead: ''
-      }
+        warehouseId: '',
+        warehouseName: '',
+        storageNum: '',
+        storageDate: '',
+        // storageTime: ['08:00:00', '18:00:00'],
+        storageTime: [new Date(), new Date()],
+        storageBeginTime: '',
+        storageEndTime: '',
+        warehouseAddress: ''
+      },
+      whList: []
     }
   },
   computed: {
@@ -76,98 +78,98 @@ export default {
   },
   created () {
     this.rules = {
-      whNo: [{ required: true, message: '请输入仓库编号', trigger: 'blur' }],
-      theme: [{ required: true, message: '请输入主题', trigger: 'blur' }],
-      scanContent: [{ required: true, message: '请输入扫描内容', trigger: 'blur' }],
-      isGetBack: [{ required: true, message: '请选择', trigger: 'blur' }],
-      qualityRequirements: [{ required: true, message: '请选择', trigger: 'blur' }],
-      singleScan: [{ required: true, message: '请选择', trigger: 'blur' }]
+      warehouseId: [{ required: true, message: '请选择仓库', trigger: 'blur' }],
+      storageNum: [{ required: true, message: '请输入可入库数量', trigger: 'blur' }],
+      storageDate: [{ required: true, message: '请选择入库日期', trigger: 'blur' }],
+      storageTime: [{ required: true, message: '请选择入库时间', trigger: 'blur' }],
+      warehouseAddress: [{ required: true, message: '请输入入库地址', trigger: 'blur' }]
     }
+    this.getWarehouse()
   },
   methods: {
     formItem () {
       return [
         {
-          type: 'TEXT',
-          label: '仓库编号',
-          key: 'whNo'
+          type: 'SELECT',
+          label: '仓库',
+          key: 'warehouseId',
+          options: this.whList,
+          change: this.whChangeHandler
+        },
+        {
+          type: 'NUM',
+          label: '可入库数量',
+          key: 'storageNum'
+        },
+        {
+          type: 'DATE',
+          label: '入库日期',
+          key: 'storageDate'
+        },
+        {
+          type: 'TIME',
+          label: '入库时间',
+          key: 'storageTime'
         },
         {
           type: 'TEXT',
-          label: '主题',
-          key: 'theme'
-        },
-        {
-          type: 'TEXTAREA',
-          label: '扫描内容',
-          key: 'scanContent'
-        },
-        {
-          type: 'RADIO',
-          label: '需求取回',
-          key: 'isGetBack',
-          option: [
-            {
-              label: '是',
-              value: '1'
-            },
-            {
-              label: '否',
-              value: '0'
-            }
-          ]
-        },
-        {
-          type: 'RADIO',
-          label: '质量要求',
-          key: 'qualityRequirements',
-          option: [
-            {
-              label: '普通质量',
-              value: '0'
-            },
-            {
-              label: '高质量',
-              value: '1'
-            },
-            {
-              label: '超精细',
-              value: '2'
-            }
-          ]
-        },
-        {
-          type: 'RADIO',
-          label: '刺绣单独扫描',
-          key: 'singleScan',
-          option: [
-            {
-              label: '需要',
-              value: '1'
-            },
-            {
-              label: '不需要',
-              value: '0'
-            }
-          ]
-        },
-        {
-          type: 'TEXT',
-          label: '实际扫描人',
-          key: 'physicalScanner'
-        },
-        {
-          type: 'TEXT',
-          label: '重要度',
-          key: 'importance'
-        },
-        {
-          type: 'CHECK',
-          key: 'isRead'
+          label: '入库地址',
+          key: 'warehouseAddress'
         }
+
       ]
     },
-    handleClose () { }
+    whChangeHandler (value) {
+      this.form.warehouseName = this.whList.find(it => it.value === value).label || ''
+      console.log(this.form)
+    },
+    cancelHandler() {
+      this.dialogVisible = false
+    },
+    confirmHandler  () {
+      this.$refs.dynamicFormRef.$refs.formRef.validate(valid => {
+        if (!valid) return
+
+        this.apiHandler(addStockoutOrderTime)
+      })
+    },
+    async apiHandler (handler) {
+      const params = {
+        warehouseId: this.form.warehouseId,
+        warehouseName: this.form.warehouseName,
+        storageNum: this.form.storageNum,
+        storageDate: this.form.storageDate,
+        warehouseAddress: this.form.warehouseAddress,
+        storageBeginTime: this.form.storageTime[0],
+        storageEndTime: this.form.storageTime[1]
+        // storageDateStr: '123'
+      }
+      console.log(params)
+      const { data } = await handler(params)
+      if (!data.success) {
+        this.$message.error(data.message)
+        return
+      }
+      this.$message.success(data.message)
+      this.cancelHandler()
+      this.$emit('addSuccess')
+    },
+    async getWarehouse() {
+      const { data } = await getWarehouse({
+        page: 1,
+        rows: 9999
+      })
+      if (!data.success) {
+        this.$message.error(data.message)
+        return
+      }
+      this.whList = data.rows.map(item => {
+        return {
+          value: item.id,
+          label: item.warehouseName
+        }
+      })
+    }
   }
 }
 </script>

@@ -4,7 +4,7 @@
     <div class="page-content">
       <SearchForm :form-item="formItem" @addHandler="addHandler" @onSearch="onSearch"
         @updataFormFata="updataFormFata" />
-      <BaseTable :columns="columns()" :table-data="tableData" @loadData="onSearch" />
+      <BaseTable :columns="columns()" :table-data="tableData" @loadData="onSearch" :total="total" />
     </div>
     <add-dialog :form-data="formData" :add-dialog-visible.sync="addDialogVisible" :oper-flag="operFlag" />
     <view-dialog :form-data="formData" :view-dialog-visible.sync="viewDialogVisible" />
@@ -16,8 +16,10 @@ import SearchForm from '@/components/SearchForm'
 import BaseTable from '@/components/BaseTable'
 import AddDialog from './AddDialog'
 import ViewDialog from './ViewDialog'
+import { getStockoutOrderTime } from '@/api/service'
+
 export default {
-  name: 'WhManage',
+  name: 'whEntryTimeManage',
   components: { MyTitle, SearchForm, BaseTable, AddDialog, ViewDialog },
   data () {
     return {
@@ -38,21 +40,27 @@ export default {
         }
       ],
       tableData: [
-        { name: '章三', text: '新增', time: '1', address: '2' },
-        { name: '里斯', text: '删除', time: '1', address: '2' },
-        { name: '网舞', text: '跳转', time: '1', address: '2' },
-        { name: '章三', text: '新增', time: '1', address: '2' },
-        { name: '里斯', text: '删除', time: '1', address: '2' },
-        { name: '网舞', text: '跳转', time: '1', address: '2' }
+        // { name: '章三', text: '新增', time: '1', address: '2' },
+        // { name: '里斯', text: '删除', time: '1', address: '2' },
+        // { name: '网舞', text: '跳转', time: '1', address: '2' },
+        // { name: '章三', text: '新增', time: '1', address: '2' },
+        // { name: '里斯', text: '删除', time: '1', address: '2' },
+        // { name: '网舞', text: '跳转', time: '1', address: '2' }
       ],
+      total: 0,
       queryInfo: {
         pageNo: 1,
         pageSize: 10
       },
       formData: {
-        whNo: '1',
-        whName: '2',
-        whAddress: '3'
+        warehouseId: '',
+        warehouseName: '',
+        storageNum: '',
+        storageDate: '',
+        storageTime: [new Date(), new Date()],
+        storageBeginTime: '',
+        storageEndTime: '',
+        warehouseAddress: ''
       },
       addDialogVisible: false,
       operFlag: 'add',
@@ -92,11 +100,20 @@ export default {
       this.operFlag = 'add'
       this.addDialogVisible = true
     },
-    onSearch (queryInfo) {
-      if (queryInfo) {
-        this.queryInfo = queryInfo
+    async onSearch (queryInfo) {
+      const params = queryInfo || {
+        page: 1,
+        rows: 10
       }
       // TODO 调用查询接口
+      const { data } = await getStockoutOrderTime(params)
+      if (!data.success) {
+        this.$message.error(data.message)
+        return
+      }
+      this.tableData = data.rows || []
+      this.total = data.total || 0
+      this.$message.success(data.message)
     },
     updataFormFata (data) {
       this.searchForm = { ...data }
