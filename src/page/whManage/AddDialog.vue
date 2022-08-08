@@ -71,8 +71,8 @@ export default {
   },
   created () {
     this.rules = {
-      warehouseCode: [{ required: true, message: '请输入仓库编号', trigger: 'blur' }],
       warehouseName: [{ required: true, message: '请输入仓库名称', trigger: 'blur' }],
+      warehouseCode: [{ required: true, message: '请输入仓库编号', trigger: 'blur' }],
       warehouseAddress: [{ required: true, message: '请输入仓库地址', trigger: 'blur' }]
     }
   },
@@ -81,14 +81,14 @@ export default {
       return [
         {
           type: 'TEXT',
-          label: '仓库编号',
-          key: 'warehouseCode',
-          disabled: this.operFlag !== 'add'
+          label: '仓库名称',
+          key: 'warehouseName'
         },
         {
           type: 'TEXT',
-          label: '仓库名称',
-          key: 'warehouseName'
+          label: '仓库编号',
+          key: 'warehouseCode',
+          disabled: this.operFlag !== 'add'
         },
         {
           type: 'TEXTAREA',

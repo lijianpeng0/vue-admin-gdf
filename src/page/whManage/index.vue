@@ -98,7 +98,7 @@ export default {
       }
       this.total = data.total
       this.tableData = data.rows
-      this.$message.success(data.message)
+      // this.$message.success(data.message)
     },
     updataFormFata (data) {
       this.searchForm = { ...data }

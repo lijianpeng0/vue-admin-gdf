@@ -17,6 +17,7 @@ import BaseTable from '@/components/BaseTable'
 import AddDialog from './AddDialog'
 import ViewDialog from './ViewDialog'
 import { getStockoutOrderTime } from '@/api/service'
+import dayjs from 'dayjs'
 
 export default {
   name: 'whEntryTimeManage',
@@ -73,8 +74,11 @@ export default {
   methods: {
     columns () {
       return [
-        { label: '姓名', key: 'name' },
-        { label: '入库时间', key: 'time' },
+        { label: '仓库名称', key: 'warehouseName' },
+        { label: '可入库数量', key: 'storageNum' },
+        { label: '入库日期', key: 'storageDateStr' },
+        { label: '入库开始时间', key: 'storageBeginTime' },
+        { label: '入库结束时间', key: 'storageEndTime' },
         { label: '地址', key: 'address' },
         {
           label: '操作',
@@ -111,9 +115,17 @@ export default {
         this.$message.error(data.message)
         return
       }
-      this.tableData = data.rows || []
+      this.tableData = data.rows.map(_ => {
+        return {
+          ..._,
+          storageDateStr: dayjs(_.storageDateStr).format('YYYY-MM-DD'),
+          storageBeginTime: dayjs(_.storageBeginTime).format('HH:mm:ss'),
+          storageEndTime: dayjs(_.storageEndTime).format('HH:mm:ss')
+
+        }
+      }) || []
       this.total = data.total || 0
-      this.$message.success(data.message)
+      // this.$message.success(data.message)
     },
     updataFormFata (data) {
       this.searchForm = { ...data }
