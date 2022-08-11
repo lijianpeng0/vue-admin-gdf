@@ -2,8 +2,12 @@
   <div class="page-main">
     <MyTitle title="入库时间管理" />
     <div class="page-content">
-      <SearchForm :form-item="formItem" @addHandler="addHandler" @onSearch="onSearch"
-        @updataFormFata="updataFormFata" />
+      <SearchForm
+        :form-item="formItem"
+        @addHandler="addHandler"
+        @onSearch="onSearch"
+        @updataFormFata="updataFormFata"
+      />
       <BaseTable :columns="columns()" :table-data="tableData" @loadData="onSearch" :total="total" />
     </div>
     <add-dialog :form-data="formData" :add-dialog-visible.sync="addDialogVisible" :oper-flag="operFlag" />
@@ -22,7 +26,7 @@ import dayjs from 'dayjs'
 export default {
   name: 'whEntryTimeManage',
   components: { MyTitle, SearchForm, BaseTable, AddDialog, ViewDialog },
-  data () {
+  data() {
     return {
       searchForm: {
         keyWord: '',
@@ -68,18 +72,18 @@ export default {
       viewDialogVisible: false
     }
   },
-  created () {
+  created() {
     this.onSearch()
   },
   methods: {
-    columns () {
+    columns() {
       return [
         { label: '仓库名称', key: 'warehouseName' },
         { label: '可入库数量', key: 'storageNum' },
         { label: '入库日期', key: 'storageDateStr' },
-        { label: '入库开始时间', key: 'storageBeginTime' },
-        { label: '入库结束时间', key: 'storageEndTime' },
-        { label: '地址', key: 'address' },
+        { label: '入库开始时间', key: 'storageBeginTimestr' },
+        { label: '入库结束时间', key: 'storageEndTimestr' },
+        { label: '地址', key: 'warehouseAddress' },
         {
           label: '操作',
           key: 'operate',
@@ -89,61 +93,60 @@ export default {
             {
               title: '编辑',
               handler: this.editHandler
-
             },
             {
               title: '详情',
               handler: this.viewHandler
-
             }
           ]
         }
       ]
     },
-    addHandler () {
+    addHandler() {
       this.operFlag = 'add'
+      this.formData = {}
       this.addDialogVisible = true
     },
-    async onSearch (queryInfo) {
+    async onSearch(queryInfo) {
       const params = queryInfo || {
         page: 1,
         rows: 10
       }
       // TODO 调用查询接口
-      const { data } = await getStockoutOrderTime(params)
-      if (!data.success) {
-        this.$message.error(data.message)
+      const { data } = (await getStockoutOrderTime({ ...params, ...this.searchForm })) || {}
+      if (!data?.success) {
+        this.$message.error(data?.message)
         return
       }
-      this.tableData = data.rows.map(_ => {
-        return {
-          ..._,
-          storageDateStr: dayjs(_.storageDateStr).format('YYYY-MM-DD'),
-          storageBeginTime: dayjs(_.storageBeginTime).format('HH:mm:ss'),
-          storageEndTime: dayjs(_.storageEndTime).format('HH:mm:ss')
-
-        }
-      }) || []
+      this.tableData =
+        data.rows.map(_ => {
+          return {
+            ..._,
+            storageDateStr: dayjs(_.storageDateStr).format('YYYY-MM-DD'),
+            storageBeginTimestr: dayjs(_.storageBeginTime).format('HH:mm:ss'),
+            storageEndTimestr: dayjs(_.storageEndTime).format('HH:mm:ss')
+          }
+        }) || []
       this.total = data.total || 0
       // this.$message.success(data.message)
     },
-    updataFormFata (data) {
+    updataFormFata(data) {
       this.searchForm = { ...data }
     },
-    editHandler (idx, row) {
-      console.log(idx, row)
+    editHandler(idx, row) {
       this.operFlag = 'edit'
+      this.formData = row
       this.addDialogVisible = true
     },
-    viewHandler (idx, row) {
-      console.log(idx, row)
+    viewHandler(idx, row) {
+      this.formData = row
       this.viewDialogVisible = true
     }
   }
 }
 </script>
 
-<style lang='less' scoped>
+<style lang="less" scoped>
 .base-table {
   flex: 1;
 }

@@ -1,5 +1,5 @@
 <template>
-  <el-dialog :title="titleInfo" :visible.sync="dialogVisible" width="30%">
+  <el-dialog :title="titleInfo" :visible.sync="dialogVisible" width="700px">
     <DynamicForm ref="dynamicFormRef" :form-data="form" :form-item="formItem()" :rules="rules" label-width="120px" />
     <span slot="footer" class="dialog-footer">
       <el-button @click="cancelHandler">取 消</el-button>
@@ -9,7 +9,7 @@
 </template>
 <script>
 import DynamicForm from '@/components/DynamicForm.vue'
-import { addStockoutOrderTime, getWarehouse } from '@/api/service'
+import { addStockoutOrderTime, editStockoutOrder, getWarehouse } from '@/api/service'
 
 export default {
   name: 'AddDialog',
@@ -28,7 +28,7 @@ export default {
     }
   },
   components: { DynamicForm },
-  data () {
+  data() {
     return {
       form: {
         warehouseId: '',
@@ -46,27 +46,26 @@ export default {
   },
   computed: {
     dialogVisible: {
-      get () {
+      get() {
         return this.addDialogVisible
       },
-      set (val) {
-        console.log(val)
+      set(val) {
         this.$emit('update:addDialogVisible', val)
       }
     },
-    titleInfo () {
+    titleInfo() {
       if (this.operFlag === 'add') return '新增'
       return '修改'
     }
   },
   watch: {
-    addDialogVisible (nv) {
+    addDialogVisible(nv) {
       if (!nv) {
         this.$refs.dynamicFormRef.resetAll()
       }
     },
     formData: {
-      handler (nv) {
+      handler(nv) {
         if (Object.values(nv).length) {
           const obj = { ...this.form, ...nv }
           this.$set(this, 'form', obj)
@@ -76,7 +75,7 @@ export default {
       immediate: true
     }
   },
-  created () {
+  created() {
     this.rules = {
       warehouseId: [{ required: true, message: '请选择仓库', trigger: 'blur' }],
       storageNum: [{ required: true, message: '请输入可入库数量', trigger: 'blur' }],
@@ -87,7 +86,7 @@ export default {
     this.getWarehouse()
   },
   methods: {
-    formItem () {
+    formItem() {
       return [
         {
           type: 'SELECT',
@@ -116,24 +115,22 @@ export default {
           label: '入库地址',
           key: 'warehouseAddress'
         }
-
       ]
     },
-    whChangeHandler (value) {
+    whChangeHandler(value) {
       this.form.warehouseName = this.whList.find(it => it.value === value).label || ''
-      console.log(this.form)
     },
     cancelHandler() {
       this.dialogVisible = false
     },
-    confirmHandler  () {
+    confirmHandler() {
       this.$refs.dynamicFormRef.$refs.formRef.validate(valid => {
         if (!valid) return
 
-        this.apiHandler(addStockoutOrderTime)
+        this.apiHandler(this.operFlag === 'add' ? addStockoutOrderTime : editStockoutOrder)
       })
     },
-    async apiHandler (handler) {
+    async apiHandler(handler) {
       const params = {
         warehouseId: this.form.warehouseId,
         warehouseName: this.form.warehouseName,
@@ -144,7 +141,6 @@ export default {
         storageEndTime: this.form.storageTime[1]
         // storageDateStr: '123'
       }
-      console.log(params)
       const { data } = await handler(params)
       if (!data.success) {
         this.$message.error(data.message)
@@ -174,7 +170,7 @@ export default {
 }
 </script>
 
-<style lang='less' scoped>
+<style lang="less" scoped>
 /deep/ .el-dialog {
   border-radius: 8px;
 

@@ -1,6 +1,6 @@
 <template>
-  <el-dialog title="详情" :visible.sync="dialogVisible" width="30%">
-    <DynamicForm ref="dynamicFormRef" :form-data="formData" :form-item="formItem()" />
+  <el-dialog title="详情" :visible.sync="dialogVisible" width="700px">
+    <DynamicForm ref="dynamicFormRef" :form-data="whEntryTimeInfo" :form-item="formItem()" />
     <span slot="footer" class="dialog-footer">
       <el-button @click="dialogVisible = false">取 消</el-button>
       <el-button type="primary" @click="dialogVisible = false">确 定</el-button>
@@ -9,6 +9,7 @@
 </template>
 <script>
 import DynamicForm from '@/components/DynamicForm.vue'
+import dayjs from 'dayjs'
 
 export default {
   name: 'ViewDialog',
@@ -21,87 +22,78 @@ export default {
       type: Boolean,
       required: true
     }
-
   },
   components: { DynamicForm },
-  data () {
-    return {
-
-    }
+  data() {
+    return {}
   },
   computed: {
     dialogVisible: {
-      get () {
+      get() {
         return this.viewDialogVisible
       },
-      set (val) {
-        console.log(val)
+      set(val) {
         this.$emit('update:viewDialogVisible', val)
+      }
+    },
+
+    whEntryTimeInfo: {
+      get() {
+        const formData = this.formData
+        return {
+          ...formData,
+          storageDateStr: dayjs(formData.storageDate).format('YYYY-MM-DD'),
+          storageTimeStr: `${dayjs(formData.storageBeginTime).format('YYYY-MM-DD HH:mm:ss')}至${dayjs(
+            formData.storageEndTime
+          ).format('YYYY-MM-DD HH:mm:ss')}`
+        }
       }
     }
   },
   watch: {
-    viewDialogVisible (nv) {
+    viewDialogVisible(nv) {
       if (!nv) {
         this.$refs.dynamicFormRef.resetAll()
       }
     }
-
   },
-  created () {
-
-  },
+  created() {},
   methods: {
-    formItem () {
+    formItem() {
       return [
         {
           type: 'VIEW',
           label: '仓库编号：',
-          key: 'whNo'
+          key: 'warehouseId'
         },
         {
           type: 'VIEW',
-          label: '主题：',
-          key: 'theme'
+          label: '可入库数量：',
+          key: 'storageNum'
         },
         {
           type: 'VIEW',
-          label: '扫描内容：',
-          key: 'scanContent'
+          label: '入库日期：',
+          key: 'storageDateStr'
         },
         {
           type: 'VIEW',
-          label: '需求取回：',
-          key: 'isGetBack'
+          label: '入库时间：',
+          key: 'storageTimeStr'
         },
         {
           type: 'VIEW',
-          label: '质量要求：',
-          key: 'qualityRequirements'
-        },
-        {
-          type: 'VIEW',
-          label: '刺绣单独扫描：',
-          key: 'singleScan'
-        },
-        {
-          type: 'VIEW',
-          label: '实际扫描人：',
-          key: 'physicalScanner'
-        },
-        {
-          type: 'VIEW',
-          label: '重要度：',
-          key: 'importance'
+          label: '入库地址：',
+          key: 'warehouseAddress'
         }
       ]
     },
-    handleClose () { }
+    handleClose() {}
   }
 }
 </script>
 
-<style lang='less' scoped>
+<style lang="less" scoped>
 /deep/ .el-dialog {
   border-radius: 8px;
 

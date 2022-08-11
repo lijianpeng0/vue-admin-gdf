@@ -9,7 +9,7 @@
 </template>
 <script>
 import DynamicForm from '@/components/DynamicForm.vue'
-import { addStockoutOrder, getWarehouse } from '@/api/service'
+import { addStockoutOrder, editStockoutOrder, getWarehouse } from '@/api/service'
 
 export default {
   name: 'AddDialog',
@@ -28,7 +28,7 @@ export default {
     }
   },
   components: { DynamicForm },
-  data () {
+  data() {
     return {
       form: {
         warehouseCode: '',
@@ -45,27 +45,26 @@ export default {
   },
   computed: {
     dialogVisible: {
-      get () {
+      get() {
         return this.addDialogVisible
       },
-      set (val) {
-        console.log(val)
+      set(val) {
         this.$emit('update:addDialogVisible', val)
       }
     },
-    titleInfo () {
+    titleInfo() {
       if (this.operFlag === 'add') return '新增'
       return '修改'
     }
   },
   watch: {
-    addDialogVisible (nv) {
+    addDialogVisible(nv) {
       if (!nv) {
         this.$refs.dynamicFormRef.resetAll()
       }
     },
     formData: {
-      handler (nv) {
+      handler(nv) {
         if (Object.values(nv).length) {
           const obj = { ...this.form, ...nv }
           this.$set(this, 'form', obj)
@@ -75,7 +74,7 @@ export default {
       immediate: true
     }
   },
-  created () {
+  created() {
     this.rules = {
       warehouseCode: [{ required: true, message: '请输入仓库编号', trigger: 'blur' }],
       stockoutUserName: [{ required: true, message: '请输入主题', trigger: 'blur' }],
@@ -88,7 +87,7 @@ export default {
     this.getWarehouse()
   },
   methods: {
-    formItem () {
+    formItem() {
       return [
         {
           type: 'SELECT',
@@ -123,7 +122,7 @@ export default {
         },
         {
           type: 'DATE',
-          label: '预约时间',
+          label: '入库时间',
           key: 'stockOrderTime'
         },
         {
@@ -131,17 +130,16 @@ export default {
           label: '备注',
           key: 'remark'
         }
-
       ]
     },
     cancelHandler() {
       this.dialogVisible = false
     },
-    confirmHandler  () {
+    confirmHandler() {
       this.$refs.dynamicFormRef.$refs.formRef.validate(valid => {
         if (!valid) return
 
-        this.apiHandler(addStockoutOrder)
+        this.apiHandler(this.operFlag === 'add' ? addStockoutOrder : editStockoutOrder)
       })
     },
     async apiHandler(handler) {
@@ -174,7 +172,7 @@ export default {
 }
 </script>
 
-<style lang='less' scoped>
+<style lang="less" scoped>
 /deep/ .el-dialog {
   border-radius: 8px;
 

@@ -2,8 +2,7 @@
   <div class="page-main">
     <MyTitle title="入库管理" />
     <div class="page-content">
-      <SearchForm :form-item="formItem" @addHandler="addHandler" @onSearch="onSearch"
-        @updataFormFata="updataFormFata" />
+      <SearchForm :form-item="formItem" @onSearch="onSearch" @updataFormFata="updataFormFata" />
       <BaseTable :columns="columns()" :table-data="tableData" @loadData="onSearch" :total="total" />
     </div>
     <add-dialog :form-data="formData" :add-dialog-visible.sync="addDialogVisible" :oper-flag="operFlag" />
@@ -17,11 +16,12 @@ import BaseTable from '@/components/BaseTable'
 import AddDialog from './AddDialog'
 import ViewDialog from './ViewDialog'
 import { getStockoutOrder } from '@/api/service'
+import dayjs from 'dayjs'
 
 export default {
   name: 'WhManage',
   components: { MyTitle, SearchForm, BaseTable, AddDialog, ViewDialog },
-  data () {
+  data() {
     return {
       searchForm: {
         keyWord: '',
@@ -60,6 +60,7 @@ export default {
         stockoutPacking: '',
         stockoutNum: '',
         stockOrderTime: '',
+        stockoutOrderNo: '',
         remark: ''
       },
       addDialogVisible: false,
@@ -67,40 +68,44 @@ export default {
       viewDialogVisible: false
     }
   },
-  created () {
+  created() {
     this.onSearch()
   },
   methods: {
-    columns () {
+    columns() {
       return [
-        { label: '姓名', key: 'name' },
-        { label: '入库时间', key: 'time' },
-        { label: '地址', key: 'address' },
+        { label: '姓名', key: 'stockoutUserName' },
+        { label: '入库时间', key: 'stockOrderTime' },
+        { label: '入库手机号', key: 'stockoutTelephone' },
+        { label: '仓库编码', key: 'warehouseCode' },
+        { label: '车牌号', key: 'stockoutCardNo' },
+        { label: '包装种类', key: 'stockoutPacking' },
+        { label: '正确的件数', key: 'stockoutNum' },
+        { label: '进仓编号', key: 'stockoutOrderNo' },
         {
           label: '操作',
           key: 'operate',
           fixed: 'right',
           width: '200',
           operList: [
-            {
-              title: '编辑',
-              handler: this.editHandler
-
-            },
+            // {
+            //   title: '编辑',
+            //   handler: this.editHandler
+            // },
             {
               title: '详情',
               handler: this.viewHandler
-
             }
           ]
         }
       ]
     },
-    addHandler () {
+    addHandler() {
       this.operFlag = 'add'
       this.addDialogVisible = true
+      this.formData = {}
     },
-    async onSearch (queryInfo) {
+    async onSearch(queryInfo) {
       const params = queryInfo || {
         page: 1,
         rows: 10
@@ -111,28 +116,32 @@ export default {
         this.$message.error(data.message)
         return
       }
-      this.tableData = data.rows || []
+      this.tableData =
+        data.rows?.map(_ => {
+          return {
+            ..._,
+            stockOrderTime: dayjs(_.stockOrderTime).format('YYYY-MM-DD HH:mm:ss')
+          }
+        }) || []
       this.total = data.total || 0
-      this.$message.success(data.message)
     },
-    updataFormFata (data) {
+    updataFormFata(data) {
       this.searchForm = { ...data }
     },
-    editHandler (idx, row) {
-      console.log(idx, row)
-      this.operFlag = 'edit'
-      this.addDialogVisible = true
-    },
-    viewHandler (idx, row) {
-      console.log(idx, row)
+    // editHandler(idx, row) {
+    //   this.operFlag = 'edit'
+    //   this.addDialogVisible = true
+    //   this.formData = row
+    // },
+    viewHandler(idx, row) {
+      this.formData = row
       this.viewDialogVisible = true
     }
-
   }
 }
 </script>
 
-<style lang='less' scoped>
+<style lang="less" scoped>
 .base-table {
   flex: 1;
 }

@@ -72,11 +72,11 @@ export function deleteStockoutOrderTime(params) {
 }
 
 // 修改入库时间
-export function editStockoutOrder(params) {
+export function editStockoutOrder(data) {
   return request({
     url: '/stockoutOrder/update',
     method: 'POST',
-    params
+    data
   })
 }
 

@@ -13,7 +13,7 @@
         <el-button @click="onReset">重置</el-button>
       </el-form-item>
     </el-form>
-    <div class="right">
+    <div class="right" v-if="showAdd">
       <i class="el-icon-circle-plus" @click="addHandler"></i>
     </div>
   </div>
@@ -33,7 +33,7 @@ export default {
     }
   },
   watch: {
-    form: {
+    formData: {
       handler (nv) {
         this.$emit('updataFormFata', nv)
       },
@@ -44,6 +44,13 @@ export default {
     this.formItem.forEach(it => {
       this.$set(this.formData, it.key, '')
     })
+  },
+  computed: {
+    showAdd: {
+      get () {
+        return !!this.$listeners.addHandler
+      }
+    }
   },
   methods: {
     onSearch () {

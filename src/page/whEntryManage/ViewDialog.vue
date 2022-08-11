@@ -21,87 +21,80 @@ export default {
       type: Boolean,
       required: true
     }
-
   },
   components: { DynamicForm },
-  data () {
-    return {
-
-    }
+  data() {
+    return {}
   },
   computed: {
     dialogVisible: {
-      get () {
+      get() {
         return this.viewDialogVisible
       },
-      set (val) {
-        console.log(val)
+      set(val) {
         this.$emit('update:viewDialogVisible', val)
       }
     }
   },
   watch: {
-    viewDialogVisible (nv) {
+    viewDialogVisible(nv) {
       if (!nv) {
         this.$refs.dynamicFormRef.resetAll()
       }
     }
-
   },
-  created () {
-
-  },
+  created() {},
   methods: {
-    formItem () {
+    formItem() {
       return [
         {
           type: 'VIEW',
-          label: '仓库编号：',
-          key: 'whNo'
+          label: '姓名：',
+          key: 'stockoutUserName'
         },
         {
           type: 'VIEW',
-          label: '主题：',
-          key: 'theme'
+          label: '入库时间：',
+          key: 'stockOrderTime'
         },
         {
           type: 'VIEW',
-          label: '扫描内容：',
-          key: 'scanContent'
+          label: '入库手机号：',
+          key: 'stockoutTelephone'
         },
         {
           type: 'VIEW',
-          label: '需求取回：',
-          key: 'isGetBack'
+          label: '仓库编码：',
+          key: 'warehouseCode'
         },
         {
           type: 'VIEW',
-          label: '质量要求：',
-          key: 'qualityRequirements'
+          label: '车牌号：',
+          key: 'stockoutCardNo'
         },
         {
           type: 'VIEW',
-          label: '刺绣单独扫描：',
-          key: 'singleScan'
+          label: '包装种类：',
+          key: 'stockoutPacking'
         },
         {
           type: 'VIEW',
-          label: '实际扫描人：',
-          key: 'physicalScanner'
+          label: '正确的件数：',
+          key: 'stockoutNum'
         },
         {
           type: 'VIEW',
-          label: '重要度：',
-          key: 'importance'
+          label: '进仓编号：',
+          key: 'stockoutOrderNo'
         }
       ]
     },
-    handleClose () { }
+    handleClose() {}
   }
 }
 </script>
 
-<style lang='less' scoped>
+<style lang="less" scoped>
 /deep/ .el-dialog {
   border-radius: 8px;
 

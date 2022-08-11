@@ -2,11 +2,20 @@
   <div class="page-main">
     <MyTitle title="仓库管理" />
     <div class="page-content">
-      <SearchForm :form-item="formItem" @addHandler="addHandler" @onSearch="onSearch"
-        @updataFormFata="updataFormFata" />
+      <SearchForm
+        :form-item="formItem"
+        @addHandler="addHandler"
+        @onSearch="onSearch"
+        @updataFormFata="updataFormFata"
+      />
       <BaseTable :columns="columns()" :table-data="tableData" @loadData="onSearch" :total="total" />
     </div>
-    <add-dialog :form-data="formData" :add-dialog-visible.sync="addDialogVisible" :oper-flag="operFlag" @addSuccess="onSearch" />
+    <add-dialog
+      :form-data="formData"
+      :add-dialog-visible.sync="addDialogVisible"
+      :oper-flag="operFlag"
+      @addSuccess="onSearch"
+    />
     <view-dialog :form-data="formData" :view-dialog-visible.sync="viewDialogVisible" />
   </div>
 </template>
@@ -21,7 +30,7 @@ import { getWarehouse, deleteWarehouse } from '@/api/service'
 export default {
   name: 'WhManage',
   components: { MyTitle, SearchForm, BaseTable, AddDialog, ViewDialog },
-  data () {
+  data() {
     return {
       searchForm: {
         warehouseName: ''
@@ -52,12 +61,11 @@ export default {
       viewDialogVisible: false
     }
   },
-  created () {
+  created() {
     this.onSearch()
-    console.log(this.$route)
   },
   methods: {
-    columns () {
+    columns() {
       return [
         { label: '仓库名称', key: 'warehouseName' },
         { label: '仓库编码', key: 'warehouseCode' },
@@ -71,7 +79,6 @@ export default {
             {
               title: '编辑',
               handler: this.editHandler
-
             },
             {
               title: '删除',
@@ -81,11 +88,12 @@ export default {
         }
       ]
     },
-    addHandler () {
+    addHandler() {
       this.operFlag = 'add'
+      this.formData = {}
       this.addDialogVisible = true
     },
-    async onSearch (queryInfo) {
+    async onSearch(queryInfo) {
       const params = queryInfo || {
         page: 1,
         rows: 10
@@ -98,38 +106,34 @@ export default {
       }
       this.total = data.total
       this.tableData = data.rows
-      // this.$message.success(data.message)
     },
-    updataFormFata (data) {
+    updataFormFata(data) {
       this.searchForm = { ...data }
     },
-    editHandler (idx, row) {
-      console.log(idx, row)
+    editHandler(idx, row) {
       this.operFlag = 'edit'
       this.formData = row
       this.addDialogVisible = true
     },
-    deleteHandler (idx, row) {
-      console.log(idx, row)
+    deleteHandler(idx, row) {
       this.$confirm('确认删除改仓库吗？', '删除确认', {
         confirmButtonText: '删除',
         cancelButtonText: '取消'
+      }).then(async () => {
+        const { data } = await deleteWarehouse({ id: row.id })
+        if (!data.success) {
+          this.$message.error(data.message)
+          return
+        }
+        this.$message.success(data.message)
+        this.onSearch()
       })
-        .then(async () => {
-          const { data } = await deleteWarehouse({ id: row.id })
-          if (!data.success) {
-            this.$message.error(data.message)
-            return
-          }
-          this.$message.success(data.message)
-          this.onSearch()
-        })
     }
   }
 }
 </script>
 
-<style lang='less' scoped>
+<style lang="less" scoped>
 .base-table {
   flex: 1;
 }

@@ -28,7 +28,7 @@ export default {
     }
   },
   components: { DynamicForm },
-  data () {
+  data() {
     return {
       form: {
         warehouseCode: '',
@@ -39,27 +39,26 @@ export default {
   },
   computed: {
     dialogVisible: {
-      get () {
+      get() {
         return this.addDialogVisible
       },
-      set (val) {
-        console.log(val)
+      set(val) {
         this.$emit('update:addDialogVisible', val)
       }
     },
-    titleInfo () {
+    titleInfo() {
       if (this.operFlag === 'add') return '新增'
       return '修改'
     }
   },
   watch: {
-    addDialogVisible (nv) {
+    addDialogVisible(nv) {
       if (!nv) {
         this.$refs.dynamicFormRef.resetAll()
       }
     },
     formData: {
-      handler (nv) {
+      handler(nv) {
         if (Object.values(nv).length) {
           const obj = { ...this.form, ...nv }
           this.$set(this, 'form', obj)
@@ -69,7 +68,7 @@ export default {
       immediate: true
     }
   },
-  created () {
+  created() {
     this.rules = {
       warehouseName: [{ required: true, message: '请输入仓库名称', trigger: 'blur' }],
       warehouseCode: [{ required: true, message: '请输入仓库编号', trigger: 'blur' }],
@@ -77,7 +76,7 @@ export default {
     }
   },
   methods: {
-    formItem () {
+    formItem() {
       return [
         {
           type: 'TEXT',
@@ -100,7 +99,7 @@ export default {
     cancelHandler() {
       this.dialogVisible = false
     },
-    confirmHandler  () {
+    confirmHandler() {
       this.$refs.dynamicFormRef.$refs.formRef.validate(valid => {
         if (!valid) return
         if (this.operFlag === 'add') {
@@ -116,8 +115,9 @@ export default {
       })
     },
     async apiHandler(handler, params) {
-      const { data } = await handler(params)
-      if (!data.success) {
+      const res = await handler(params)
+      const { data } = res || {}
+      if (!data?.success) {
         this.$message.error(data.message)
         return
       }
@@ -129,7 +129,7 @@ export default {
 }
 </script>
 
-<style lang='less' scoped>
+<style lang="less" scoped>
 /deep/ .el-dialog {
   border-radius: 8px;
 

@@ -21,38 +21,31 @@ export default {
       type: Boolean,
       required: true
     }
-
   },
   components: { DynamicForm },
-  data () {
-    return {
-
-    }
+  data() {
+    return {}
   },
   computed: {
     dialogVisible: {
-      get () {
+      get() {
         return this.viewDialogVisible
       },
-      set (val) {
-        console.log(val)
+      set(val) {
         this.$emit('update:viewDialogVisible', val)
       }
     }
   },
   watch: {
-    viewDialogVisible (nv) {
+    viewDialogVisible(nv) {
       if (!nv) {
         this.$refs.dynamicFormRef.resetAll()
       }
     }
-
   },
-  created () {
-
-  },
+  created() {},
   methods: {
-    formItem () {
+    formItem() {
       return [
         {
           type: 'VIEW',
@@ -71,12 +64,12 @@ export default {
         }
       ]
     },
-    handleClose () { }
+    handleClose() {}
   }
 }
 </script>
 
-<style lang='less' scoped>
+<style lang="less" scoped>
 /deep/ .el-dialog {
   border-radius: 8px;
 
