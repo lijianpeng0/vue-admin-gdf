@@ -111,7 +111,7 @@ export default {
         rows: 10
       }
       // TODO 调用查询接口
-      const { data } = await getStockoutOrder(params)
+      const { data } = await getStockoutOrder({ ...params, ...this.searchForm })
       if (!data.success) {
         this.$message.error(data.message)
         return
