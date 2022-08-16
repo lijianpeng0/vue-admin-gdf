@@ -9,7 +9,7 @@
 </template>
 <script>
 import DynamicForm from '@/components/DynamicForm.vue'
-import { addStockoutOrderTime, editStockoutOrder, getWarehouse } from '@/api/service'
+import { addStockoutOrderTime, editStockoutOrderTime, getWarehouse } from '@/api/service'
 
 export default {
   name: 'AddDialog',
@@ -127,7 +127,7 @@ export default {
       this.$refs.dynamicFormRef.$refs.formRef.validate(valid => {
         if (!valid) return
 
-        this.apiHandler(this.operFlag === 'add' ? addStockoutOrderTime : editStockoutOrder)
+        this.apiHandler(this.operFlag === 'add' ? addStockoutOrderTime : editStockoutOrderTime)
       })
     },
     async apiHandler(handler) {

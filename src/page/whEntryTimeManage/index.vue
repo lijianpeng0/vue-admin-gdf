@@ -30,7 +30,7 @@ export default {
     return {
       searchForm: {
         keyWord: '',
-        date: ''
+        timeInterval: ''
       },
       formItem: [
         {
@@ -40,7 +40,7 @@ export default {
         },
         {
           type: 'DATE',
-          key: 'date',
+          key: 'timeInterval',
           label: '时间间隔'
         }
       ],
@@ -112,7 +112,8 @@ export default {
         page: 1,
         rows: 10
       }
-      // TODO 调用查询接口
+
+      // 调用查询接口
       const { data } = (await getStockoutOrderTime({ ...params, ...this.searchForm })) || {}
       if (!data?.success) {
         this.$message.error(data?.message)

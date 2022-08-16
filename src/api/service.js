@@ -54,11 +54,11 @@ export function getStockoutOrderTime(params) {
 }
 
 // 新增入库时间
-export function addStockoutOrderTime(params) {
+export function addStockoutOrderTime(data) {
   return request({
     url: '/dateParam/create',
     method: 'POST',
-    params
+    data
   })
 }
 
@@ -72,20 +72,20 @@ export function deleteStockoutOrderTime(params) {
 }
 
 // 修改入库时间
-export function editStockoutOrder(data) {
+export function editStockoutOrderTime(data) {
   return request({
-    url: '/stockoutOrder/update',
+    url: '/dateParam/update',
     method: 'POST',
     data
   })
 }
 
 // 新增入库预约
-export function addStockoutOrder(params) {
+export function addStockoutOrder(data) {
   return request({
     url: '/stockoutOrder/create',
     method: 'POST',
-    params
+    data
   })
 }
 
